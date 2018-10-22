@@ -1,0 +1,7 @@
+{
+  "name": "event-hub-app",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

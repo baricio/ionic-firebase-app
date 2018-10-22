@@ -1,0 +1,1 @@
+//# sourceMappingURL=event.model.js.map
