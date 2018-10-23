@@ -11,20 +11,21 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export class HomePage {
 
   events = new BehaviorSubject<any[]>([]);
-  limit:number = 10;
-  lastKey;
+  limit:number = 5;
+  lastKey:any = '';
   finished:boolean = false;
 
   constructor(public navCtrl: NavController, private fireStore: AngularFirestore) {
-    this.getNext(()=>true)
+    this.getNext()
+        .pipe(take(1))
+        .subscribe();
   }
 
   getItems(limit, lastKey) {
       return this.fireStore
       .collection<any>('events', ref => {
-          console.log('limit', limit)
-          console.log('lastKey', lastKey)
           const query = ref.orderBy('id').limit(limit)
+          console.log('ver lastkey', lastKey)
           return (lastKey)? query.startAt(lastKey) : query;
       })
       .snapshotChanges()
@@ -33,29 +34,27 @@ export class HomePage {
       }));
   }
 
-  getNext(cb) {
+  getNext() {
       if (this.finished) { return this.events; }
 
       return this.getItems(this.limit + 1, this.lastKey)
-      .subscribe(items => {
-          console.log('items', items)
+      .pipe(tap(items => {
+          this.lastKey = items[items.length -1]['id']
           const newEvent = items.slice(0, this.limit)
           const currentEvent = this.events.getValue()
-          this.lastKey = items[items.length -1]['id']
-          if (this.lastKey['id'] === newEvent[newEvent.length -1]['id']) {
+          if (this.lastKey === newEvent[newEvent.length -1]['id']) {
               this.finished = true;
           }
           this.events.next(currentEvent.concat(newEvent))
-          if (cb){
-            cb()
-          }
-      })
+      }));
   }
 
   doInfinite(infiniteScroll): Promise<void>  {
        if (!this.finished) {
         return new Promise((resolve, reject) => {
-          this.getNext(()=> resolve())
+          this.getNext()
+          .pipe(take(1))
+          .subscribe(()=>resolve());
         })
        }
        return Promise.resolve();

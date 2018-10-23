@@ -15,6 +15,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFirestoreModule } from 'angularfire2/firestore';
 import { firebaseConfig } from './credentials';
+import {FilterPipe, dateByPipe} from '../filters/filters'
 
 @NgModule({
   declarations: [
@@ -23,7 +24,9 @@ import { firebaseConfig } from './credentials';
     ContactPage,
     HomePage,
     TabsPage,
-    LoginPage
+    LoginPage,
+    FilterPipe,
+    dateByPipe
   ],
   imports: [
     BrowserModule,
